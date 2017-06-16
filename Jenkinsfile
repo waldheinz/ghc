@@ -271,6 +271,7 @@ def testGhc(params) {
 
   withGhcBinDist(targetTriple) {
     stage('Configure') {
+      echo 'echo $PATH'
       sh "which ghc"
       sh "./configure --prefix=\"`pwd`/${instDir}\""
       sh "${makeCmd} install"
