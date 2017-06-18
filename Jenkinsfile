@@ -155,7 +155,7 @@ def buildGhc(params) {
 
   withGhcSrcDist() {
     stage('Configure') {
-      echo 'echo $PATH'
+      sh 'echo $PATH'
       sh "which ghc"
 
       def speed = 'NORMAL'
