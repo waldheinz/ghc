@@ -265,16 +265,21 @@ def withGhcBinDist(String targetTriple, Closure f) {
 def testGhc(params) {
   String targetTriple = params?.targetTriple
   // See Note [Spaces in TEST_HC]
-  String instDir="bindisttest/install   dir"
   String testGhc="${instDir}/bin/ghc"
   String makeCmd = params?.makeCmd ?: 'make'
+  String instDir="${pwd()}/bindisttest/install   dir"
 
   withGhcBinDist(targetTriple) {
     stage('Configure') {
       echo 'echo $PATH'
       sh "which ghc"
-      sh "./configure --prefix=\"`pwd`/${instDir}\""
-      sh "${makeCmd} install"
+      if (isUnix()) {
+          sh "./configure --prefix=\"${instDir}\""
+          sh "${makeCmd} install"
+      } else {
+          sh "mkdir -p \"${instDir}\""
+          sh "cp -R * ${instDir}"
+      }
     }
 
     stage('Install testsuite dependencies') {
