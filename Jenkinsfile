@@ -155,6 +155,9 @@ def buildGhc(params) {
 
   withGhcSrcDist() {
     stage('Configure') {
+      echo 'echo $PATH'
+      sh "which ghc"
+
       def speed = 'NORMAL'
       if (params.nightly) {
         speed = 'SLOW'
@@ -271,8 +274,6 @@ def testGhc(params) {
 
   withGhcBinDist(targetTriple) {
     stage('Configure') {
-      echo 'echo $PATH'
-      sh "which ghc"
       if (isUnix()) {
           sh "./configure --prefix=\"${instDir}\""
           sh "${makeCmd} install"
