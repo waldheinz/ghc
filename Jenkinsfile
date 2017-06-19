@@ -83,13 +83,11 @@ parallel (
     }
   },
   // Requires cygpath plugin?
-  /*
   "windows 64"         : {
     node(label: 'windows && amd64') {
       withMingw('MINGW64') { buildAndTestGhc(targetTriple: 'x86_64-w64-mingw32') }
     }
   },
-  */
   "windows 32"         : {
     node(label: 'windows && amd64') {
       withMingw('MINGW32') { buildAndTestGhc(targetTriple: 'x86_64-pc-msys') }
