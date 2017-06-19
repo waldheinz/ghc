@@ -83,11 +83,13 @@ parallel (
     }
   },
   // Requires cygpath plugin?
+  /*
   "windows 64"         : {
     node(label: 'windows && amd64') {
       withMingw('MINGW64') { buildAndTestGhc(targetTriple: 'x86_64-w64-mingw32') }
     }
   },
+  */
   "windows 32"         : {
     node(label: 'windows && amd64') {
       withMingw('MINGW32') { buildAndTestGhc(targetTriple: 'x86_64-pc-msys') }
@@ -109,9 +111,9 @@ if (params.runNofib) {
 
 def withMingw(String msystem, Closure f) {
   // Derived from msys2's /etc/msystem
-  def msysRoot = 'C:\\msys64'
+  String msysRoot = 'C:\\msys64'
   String carch, prefix, ghcPath
-  home = sh(script: 'echo $HOME', returnStdout: true)
+  home = sh(script: 'echo -n $HOME', returnStdout: true)
   if (msystem == 'MINGW32') {
     prefix = "${msysRoot}\\mingw32"
     carch = 'i686'
