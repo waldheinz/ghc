@@ -6,6 +6,10 @@
 
   Linux (Debian) worker dependencies:
    * xutil-dev curl automake autoconf libtool python3 python3-sphinx, llvm-4.0
+
+   Requires approvals for:
+   * new net.sf.json.JSONObject
+
 */
 
 import net.sf.json.JSONObject
@@ -123,7 +127,7 @@ def withMingw(String msystem, Closure f) {
   } else {
     fail
   }
-  chost = "${carch}-w64-mingw32"
+  String chost = "${carch}-w64-mingw32"
 
   withEnv(["MSYSTEM=${msystem}",
            "PATH+mingw=${prefix}\\bin",
@@ -133,7 +137,7 @@ def withMingw(String msystem, Closure f) {
            "MSYSTEM_CHOST=${chost}",
            "MINGW_CHOST=${chost}",
            "MINGW_PREFIX=${prefix}",
-           "MINGW_PACKAGE_PREFIX=mingw-w64-${MSYSTEM_CARCH}",
+           "MINGW_PACKAGE_PREFIX=mingw-w64-${carch}",
            "CONFIG_SITE=${prefix}/etc/config.site"
           ], f)
 }
@@ -202,7 +206,7 @@ def buildGhc(params) {
       sh "${makeCmd} binary-dist"
       def json = new JSONObject()
       def tarPath = getMakeValue(makeCmd, 'BIN_DIST_PREP_TAR_COMP')
-      def tarName = sh(script: "basename ${tarPath}", returnStdout: true)
+      def tarName = sh(script: "basename ${tarPath}", returnStdout: true).trim()
       json.put('tarName', tarName)
       json.put('dirName', getMakeValue(makeCmd, 'BIN_DIST_NAME'))
       json.put('ghcVersion', getMakeValue(makeCmd, 'ProjectVersion'))
