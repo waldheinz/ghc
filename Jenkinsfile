@@ -273,9 +273,9 @@ def withGhcBinDist(String targetTriple, Closure f) {
 def testGhc(params) {
   String targetTriple = params?.targetTriple
   // See Note [Spaces in TEST_HC]
-  String testGhc="${instDir}/bin/ghc"
   String makeCmd = params?.makeCmd ?: 'make'
   String instDir="${pwd()}/bindisttest/install   dir"
+  String testGhc="${instDir}/bin/ghc"
 
   withGhcBinDist(targetTriple) {
     stage('Configure') {
