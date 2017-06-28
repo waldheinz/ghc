@@ -229,12 +229,12 @@ def withTempDir(String name, Closure f) {
      rm -Rf ${name} || true
      mkdir ${name}
      """
-  dir(name) {
-    try {
+  try {
+    dir(name) {
       f()
-    } finally {
-      deleteDir()
     }
+  } finally {
+    sh "rm -Rf ${name}"
   }
 }
 
@@ -260,12 +260,12 @@ def withGhcBinDist(String targetTriple, Closure f) {
     def metadata = readJSON file: "bindist.json"
     sh "tar -xf ${metadata.tarName}"
     sh "tar -xf ghc-testsuite.tar.xz"
-    dir(metadata.dirName) {
-      try {
+    try {
+      dir(metadata.dirName) {
         f()
-      } finally {
-        deleteDir()
       }
+    } finally {
+      sh "rm -R ${metadata.dirName}"
     }
   }
 }
