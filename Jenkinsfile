@@ -302,7 +302,7 @@ def testGhc(params) {
       if (params.nightly) {
         target = 'slowtest'
       }
-      sh "${makeCmd} -Ctestsuite/tests LOCAL=0 BINDIST=YES THREADS=${env.THREADS} TEST_HC=\"`pwd`/${testGhc}\" ${target}"
+      sh "${makeCmd} -Ctestsuite/tests LOCAL=0 BINDIST=YES THREADS=${env.THREADS} TEST_HC=\"${testGhc}\" ${target}"
     }
   }
 }
