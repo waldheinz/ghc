@@ -284,7 +284,7 @@ def testGhc(params) {
           sh "${makeCmd} install"
       } else {
           sh "mkdir -p \"${instDir}\""
-          sh "cp -R * ${instDir}"
+          sh "cp -R * \"${instDir}\""
       }
     }
 
