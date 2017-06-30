@@ -28,6 +28,7 @@ available = False
 
 import Data.Bits (Bits(..), FiniteBits(..))
 import Data.Int
+import Data.Maybe ( catMaybes )
 import Data.Word (Word16, Word32)
 import Foreign.C.Error (throwErrnoIfMinus1, eINTR, eINVAL,
                         eNOTSUP, getErrno, throwErrno)
@@ -93,10 +94,10 @@ modifyFd kq fd oevt nevt
       let !ev = event fd (toFilter nevt) flagAdd noteEOF
       kqueueControl (kqueueFd kq) ev
 
-toFilter :: E.Event -> Filter
-toFilter evt
-  | evt `E.eventIs` E.evtRead = filterRead
-  | otherwise                 = filterWrite
+toFilter :: E.Event -> [Filter]
+toFilter e = catMaybes [ check E.evtRead filterRead, check E.evtWrite filterWrite ]
+    where
+        check e' f = if e `E.eventIs` e' then Just f else Nothing
 
 modifyFdOnce :: KQueue -> Fd -> E.Event -> IO Bool
 modifyFdOnce kq fd evt = do
@@ -140,8 +141,8 @@ data Event = KEvent {
     , udata  :: {-# UNPACK #-} !(Ptr ())
     } deriving Show
 
-event :: Fd -> Filter -> Flag -> FFlag -> Event
-event fd filt flag fflag = KEvent (fromIntegral fd) filt flag fflag 0 nullPtr
+event :: Fd -> [Filter] -> Flag -> FFlag -> [Event]
+event fd flts flag fflag = map (\filt -> KEvent (fromIntegral fd) filt flag fflag 0 nullPtr) flts
 
 -- | @since 4.3.1.0
 instance Storable Event where
@@ -222,9 +223,12 @@ instance Storable TimeSpec where
 kqueue :: IO KQueueFd
 kqueue = KQueueFd `fmap` throwErrnoIfMinus1 "kqueue" c_kqueue
 
-kqueueControl :: KQueueFd -> Event -> IO Bool
-kqueueControl kfd ev =
-    withTimeSpec (TimeSpec 0 0) $ \tp ->
+kqueueControl :: KQueueFd -> [Event] -> IO Bool
+kqueueControl kfd evts = liftM and $ mapM go evts
+  where
+    and [] = True
+    and (x:xs) = x && (and xs)
+    go ev = withTimeSpec (TimeSpec 0 0) $ \tp ->
         withEvent ev $ \evp -> do
             res <- kevent False kfd evp 1 nullPtr 0 tp
             if res == -1
